@@ -65,7 +65,9 @@ def top_pick_line(row: pd.Series) -> str:
             try:
                 d = row.get('delta')
                 if d is not None and not pd.isna(d):
-                    parts.append(f"delta {float(d):.2f}")
+                    dv = float(d)
+                    if abs(dv) >= 0.05:
+                        parts.append(f"delta {dv:.2f}")
             except Exception:
                 pass
             try:
@@ -80,16 +82,17 @@ def top_pick_line(row: pd.Series) -> str:
                     parts.append(f"mid {float(mid):.3f}")
             except Exception:
                 pass
+            # Hide meaningless bid/ask zeros (Yahoo often returns 0/0).
             try:
                 bid = row.get('bid')
-                if bid is not None and not pd.isna(bid):
-                    parts.append(f"bid {float(bid):.3f}")
-            except Exception:
-                pass
-            try:
                 ask = row.get('ask')
-                if ask is not None and not pd.isna(ask):
-                    parts.append(f"ask {float(ask):.3f}")
+                bid_v = float(bid) if bid is not None and not pd.isna(bid) else None
+                ask_v = float(ask) if ask is not None and not pd.isna(ask) else None
+                if not (bid_v == 0.0 and ask_v == 0.0):
+                    if bid_v is not None:
+                        parts.append(f"bid {bid_v:.3f}")
+                    if ask_v is not None:
+                        parts.append(f"ask {ask_v:.3f}")
             except Exception:
                 pass
             parts.append(f"cover {cover_avail}")
@@ -147,7 +150,9 @@ def top_pick_line(row: pd.Series) -> str:
             try:
                 d = row.get('delta')
                 if d is not None and not pd.isna(d):
-                    parts.insert(0, f"delta {float(d):.2f}")
+                    dv = float(d)
+                    if abs(dv) >= 0.05:
+                        parts.insert(0, f"delta {dv:.2f}")
             except Exception:
                 pass
             try:
@@ -156,16 +161,18 @@ def top_pick_line(row: pd.Series) -> str:
                     parts.insert(0, f"mid {float(mid):.3f}")
             except Exception:
                 pass
+
+            # Hide meaningless bid/ask zeros (Yahoo often returns 0/0).
             try:
                 bid = row.get('bid')
-                if bid is not None and not pd.isna(bid):
-                    parts.insert(0, f"bid {float(bid):.3f}")
-            except Exception:
-                pass
-            try:
                 ask = row.get('ask')
-                if ask is not None and not pd.isna(ask):
-                    parts.insert(0, f"ask {float(ask):.3f}")
+                bid_v = float(bid) if bid is not None and not pd.isna(bid) else None
+                ask_v = float(ask) if ask is not None and not pd.isna(ask) else None
+                if not (bid_v == 0.0 and ask_v == 0.0):
+                    if ask_v is not None:
+                        parts.insert(0, f"ask {ask_v:.3f}")
+                    if bid_v is not None:
+                        parts.insert(0, f"bid {bid_v:.3f}")
             except Exception:
                 pass
             try:
